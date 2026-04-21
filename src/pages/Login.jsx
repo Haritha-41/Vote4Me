@@ -5,7 +5,7 @@ import { Card, PillButton } from "../components/ui";
 
 function Login() {
   const navigate = useNavigate();
-  const { login, isAuthenticated, isInitializing, authError, user } = useSession();
+  const { login, isAuthenticated, authError, user } = useSession();
   const [authToken, setAuthToken] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -28,7 +28,10 @@ function Login() {
     setIsSubmitting(true);
 
     try {
-      await login({ authToken: authToken.trim() });
+      const signedInUser = await login({ authToken: authToken.trim() });
+      navigate(signedInUser?.role === "admin" ? "/admin" : "/dashboard", {
+        replace: true,
+      });
     } catch (submitError) {
       setError(submitError?.message ?? "Sign-in failed. Please try again.");
     } finally {
@@ -72,7 +75,7 @@ function Login() {
             />
           </div>
 
-          <PillButton type="submit" disabled={isSubmitting || isInitializing} color="googleBlue" className="w-full">
+          <PillButton type="submit" disabled={isSubmitting} color="googleBlue" className="w-full disabled:opacity-60">
             {isSubmitting ? "Verifying..." : "Verify and Continue"}
           </PillButton>
         </form>

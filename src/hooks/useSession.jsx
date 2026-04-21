@@ -22,7 +22,12 @@ export function SessionProvider({ children }) {
       }
 
       try {
-        const currentUser = await getCurrentUser(token);
+        const currentUser = await Promise.race([
+          getCurrentUser(token),
+          new Promise((_, reject) => {
+            setTimeout(() => reject(new Error("Session validation timed out.")), 10000);
+          }),
+        ]);
         if (cancelled) return;
         setUser(currentUser.user);
       } catch (error) {
@@ -30,7 +35,7 @@ export function SessionProvider({ children }) {
         clearStoredToken();
         setToken(null);
         setUser(null);
-        setAuthError("Session expired. Please sign in again.");
+        setAuthError("Session expired or unreachable. Please sign in again.");
       } finally {
         if (!cancelled) {
           setIsInitializing(false);
@@ -51,7 +56,7 @@ export function SessionProvider({ children }) {
     setToken(response.token);
     setUser(response.user);
     setAuthError("");
-    navigate(response.user?.role === "admin" ? "/admin" : "/dashboard", { replace: true });
+    return response.user;
   }
 
   async function logout() {

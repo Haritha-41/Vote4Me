@@ -12,7 +12,7 @@ export function PillButton({ children, color = "googleBlue", className = "", ...
 
   return (
     <button
-      className={`rounded-full px-4 py-2 text-sm font-semibold ${colorMap[color] ?? colorMap.googleBlue} ${className}`}
+      className={`rounded-full px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60 ${colorMap[color] ?? colorMap.googleBlue} ${className}`}
       {...props}
     >
       {children}
