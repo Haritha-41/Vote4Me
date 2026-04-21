@@ -2,14 +2,15 @@ import { ConvexHttpClient } from "convex/browser";
 import { api } from "../../convex/_generated/api";
 
 const convexUrl = import.meta.env.VITE_CONVEX_URL;
-
-if (!convexUrl) {
-  throw new Error("Missing VITE_CONVEX_URL environment variable.");
-}
-
-const client = new ConvexHttpClient(convexUrl);
+const client = convexUrl ? new ConvexHttpClient(convexUrl) : null;
 
 async function executeConvexRequest(request) {
+  if (!client) {
+    throw new Error(
+      "Missing VITE_CONVEX_URL in environment variables. Configure it and redeploy.",
+    );
+  }
+
   try {
     return await request();
   } catch (error) {
